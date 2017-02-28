@@ -1,0 +1,79 @@
+----------------------------------------------------------------------------------------------------------
+------------------------------- README_patch, v.1.0 by Marco Fagiani, 2017 -------------------------------
+----------------------------------------------------------------------------------------------------------
+
+1 - Patch presentation
+2 - Known Issues and solutions
+
+
+##########################################################################################################
+##########################################################################################################
+
+1 - Patch presentation
+
+
+Patch credits to Jonathan Michalon (jonathan.michalon@etu.unistra.fr)
+ 
+Original patch proposal: http://www.supercluster.org/pipermail/torqueusers/2012-February/014041.html
+
+Original mail text (with instruction):
+
+Hi Maui folks,
+
+GPUs in Maui are a long standing problem. Last year a patch was sent by Mariusz
+Mamoński [1], which works based on GRES parameters.
+I've just made GPUs kind of working, by enhancing that patch. Please find
+attached the resulting patch, which works well for Maui 3.3.1.
+It defines a special GRES named "gpu" which works as expected on my test cases.
+
+Note that GRES behaviour seems quite confused as sometimes they are mentioned
+as consumable. This patch annihilates this behaviour, for the needs of GPUs.
+
+To use the patch:
+get the sources of maui-3.3.1 and patch them:
+patch -p1 < ../Patch-for-gpu-GRES.patch
+then compile as usual.
+
+You have to configure the GPUs in maui.cfg:
+NODECFG[nodename] GRES=gpu:2
+
+Then when queuing jobs you can request GPUs with (Torque syntax):
+qsub -W x=GRES:gpu@1
+
+I hope this helps, please test this and enhance to your needs!
+
+[1]
+http://www.supercluster.org/pipermail/mauiusers/2011-April/004622.html
+
+Regards,
+
+PS. This is the second attempt to send the mail…
+
+--
+Jonathan Michalon
+IT student in Strasbourg
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: Patch-for-gpu-GRES.patch
+Type: text/x-patch
+Size: 4803 bytes
+Desc: not available
+Url : http://www.supercluster.org/pipermail/torqueusers/attachments/20120203/e6847559/attachment-0001.bin
+
+
+##########################################################################################################
+##########################################################################################################
+
+2 - Known Issues and solutions
+
+
+In multi-GPU system "using your "-W x=GRES:gpu@1" spec (without a "-l nodes=1:gpus=1" spec) makes the job  run, but it doesn't have an idea which GPU to use."
+Ref: http://www.supercluster.org/pipermail/torqueusers/2012-April/014443.html
+
+Temporary solution for multi-GPUs system:
+
+At system startup, change each GPU compute mode to EXCLUSIVE_PROCESS via:
+nvidia-smi -g $GPU_NUMBER -c 1
+
+
+
