@@ -1,0 +1,4 @@
+# PBS Definitions
+export PBSDEF  = -D__MPBS
+export PBSCFLAGS   = @PBSCFLAGS@
+export PBSLDFLAGS  = @PBSLDFLAGS@

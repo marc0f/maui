@@ -1,0 +1,150 @@
+Maui 3.3.1
+  - Fixed issue where hostlist was being overwritten resulting in broken $PBS_NODEFILE. (Alexis Cousein)
+  - Fixed issue where users could set system priority on their own jobs. (Bas van der Vlies)
+  - Made showgrid's, and other's, arguments case-insensitive. (David Chin)
+  - Added build system changes to support Cygwin (Yauheni Charniauski, UIIP Minsk)
+  - Added the --with-cygrunsrv configure option for start maui as Windows service (doesn't use a background daemon).
+    Cygwin utility cygrunsrv.exe goes it into background independently (Igor Ilyenko, UIIP Minsk)
+  - changed all remaining mallocs to callocs which zeros memory on allocation.  Fixes a crash due 
+    to the way some whiel loops in MResAdjustDRes() expect things to be. (Jason Williams)
+  - Added proper memory allocation checks to accompany the callocs in MRes.c to avoid
+    missing memory errors. (Jason Williams)
+  - Added debug print messages to MUSNPrintF() and added a proper check of the return
+    code to vsnprintf to be in accordance with glibc >=2.1, if installed. (Jason Williams)
+  - Changed top-level Makefile BUILDROOT assignment to allow RPM builds (Jason Williams)
+  - Minor changes to fix a few valgrind errors about uninitialized values (Jason Williams)
+  - Patch to fix SYSTEMMAXJOBWALLTIME, SYSTEMMAXPROCPERJOB, and SYSTEMMAXPROCSECONDPERJOB
+    which previously no-op'ed (Jason Williams)
+  - Patch for 'showq -r' to show the correct values between 0 - 100 percent if NODEALLOCMAXPS is set
+    to TRUE (Bas van der Vlies)
+  - Added UseMachineSpeedForFS patch. (Robin Roth)
+    "When using Fairshare it weights the Fairshareusage with the speed of 
+    the nodes used by the job. Up to now the nodespeed is only used to allow 
+    jobs to run longer, but with fairshare users on slower nodes are punished, 
+    as their fs-usage is higher than on fast nodes. Additionally this allows 
+    single nodes to be taken out of the fairshare-system by setting their speed 
+    to very low numbers."
+
+Maui 3.3
+  - Fixed configure script. Was putting RMCFG[name] TYPE=PBS@RMNMHOST@.
+
+Maui 3.2.6p21
+  - Added RMCFG[] ASYNCJOBSTART=TRUE for asynchronous job starts in pbs. (Thanks to Bas van der Vlies and the community)
+  - Added StartTime and CompletionTime to Gold Charge.
+  - Fixed backfill issue with SINGLEUSER NODEACCESSPOLICY. (Thanks goes to Roy Dragseth)
+  - N->{A|C}Res.Swap is overcommitted with N->CRes.Swap instead of N->CRes.Mem. (Thanks goes to Roy Dragseth)
+  - Fixed a nodes configured swap from changing in a maui+pbs setup. (Thanks goes to Gareth Williams of CSIRO)
+  - Fixed CHECKSUM authentication for maui + slurm. Thanks goes to Eyegene Ryabinkin.
+  - Fixed 64bit issue. Maui assumed ints were always 8 bytes for 64bit systems even though x86_64 ints are still 4 bytes. This lead to aliasing of large indexed node properties to smaller indexed properties. Maui now triggers off of sizeof(int). Thanks goes to Alexis Cousein.
+  - Fixed an optimiztion issue with x86_64 systems. -O2 was optimizing out parts of the communication strings.
+
+Maui 3.2.6p20
+  - Fixed a potential security issue when Maui is used with some PBS configurations.
+  - Fixed a bug pertaining to Maui's resource policy ExtendedViolation time (thanks goes to Nick Sonneveld).
+  - Fixed a bug with generic consumable floating resources which prevented them from working when a job also requested a 'mem' resource (thanks to Jeffrey Reed for the fix).
+  - Fixed typos in MPBSI.c that may have caused undesirable side-effects (thanks to Jeffrey Reed for the fix).
+  - Fixed a bug where group fairshare components were being miscalculated when percent based fairshare is enabled (thanks goes to Steve Traylen for the fix).
+  - Implemented FSSECONDARYGROUPS to map unix groups to fair share groups. Contributed by Bas van der Vlies (SARA).
+  - Implemented IGNPBSGROUPLIST to ignore 'qsub -W group_list=<value>'. Contributed by Bas van der Vlies (SARA).
+  - Note for FSSECONDARYGROUPS and IGNPBSGROUPLIST:
+    {{{ 
+      Maui did not parse the PBS group_list parameter:
+        qsub -W group_list=<value>
+
+      This variable has the highest priority and will set the group credential to
+        the value specified. We at SARA want to ignore this parameter, because we
+      do not want an user to specify its own group and bypass the FairShare
+      targets. So we added an option to ignore this parameter:
+        - IGNPBSGROUPLIST          TRUE
+
+      This patch also fix some debug problems that i had when the debug level is
+      set to another value then the default one, eg:
+        - LOGLEVEL 9
+
+      Maui has a lot of keywords and the parsing of the keywords are only be
+      shown if a certain loglevel is set. Somebody thought it is nice that the
+      maui keyword table is sorted alphabetically. This is not correct because
+      now only the keywords after the LOG... definitions are shown. This patch
+      moves the LOG.. keywords definition to the beginning of keyword table and
+      fix this problem.
+    }}}
+
+  - Implemented fitting of jobs into available partitions. Contributed by Eygene Ryabinkin, Russian Research Centre "Kurchatov Institute".
+    ex. USERCFG[user] PLIST=par1,par2,par3 PDEF=par2 user's job will firt try to be fit in par2. If par2 doesn't work then par1 and par3 will be tried. 
+  - Added DBG(3,fALL) to lone DPrint statements in src/moab/MRes.c because it was flooding the log file for Michael Barnes when working with 32k jobs.
+
+Maui 3.2.6p19
+
+  - Implemented fixes for a segfault, FSPOLICY loading, and workload traces submitted by Ake Sandgren
+  - Implemented patch in MJobProcessExtensionString to avoid dropping first token (from Peter Gardfjäll)
+  - Added SUSE service startup script (suse.maui.d) to "contrib" directory (thanks goes to Stephen Cary)
+
+Maui 3.2.6p18
+
+  - Implemented NODEALLOCMAXPS patch from Bas van der Vlies
+  - Implemented minor bug patch from Ake Sandgren
+  - Implemented NODECFG[] MAXPROC[CLASS] patch from Yaroslav Halchenko
+
+Maui 3.2.6p16
+
+  - Maui's 'configure' script now compatible with latest TORQUE versions
+
+Maui 3.2.6p15
+
+  - Various enhancements and bug fixes
+
+Maui 3.2.6p14
+
+  Features
+
+  - Corrected logging in earliest start time evaluation handling 
+  - Fixed buffer overflow in mdiag -p
+  - Fixed bug with floating generic resource tracking
+  - Added support for NODEMEMOVERCOMMITFACTOR on TORQUE
+  - Integrated latest DOE S3 communications library
+  - Cleaned up showconfig output
+  - Corrected multiple memory errors
+  - Fixed security initialization
+  - Fixed feature based reservation checkpoint recovery
+  - Improved command line arg handling
+ 
+Maui 3.2.6p11
+
+  Scalability
+
+  - Added client data compression
+
+  Inter-operability
+
+  - Added support for SSS 3.0.3 job structure
+  - Added support for SSS suspend-resume features
+  - Support PBS 'state-unknown' mapping
+  - Improved TORQUE 'status' attribute auto-detection
+
+  Security
+
+  - Added client data encryption
+  - Added client bounds checking to prevent buffer overflow 
+  - Enhanced group ID mapping support
+
+  Features
+
+  - Added scheduler-level config based node feature specification
+  - Enabled Dynamic Hostlist Modification
+  - Enabled AM Job Failure Action Support
+  - Added support for class/queue level feature requirement defaults
+  - Added support for dedicated resource specification w/in standing reservations
+
+  Fault Tolerance
+
+  - Fixed TORQUE server data auto-detect
+  - Fixed data corruption server crash
+  - Improved logic for stale job handling with failing resource managers
+
+  Useability
+
+  - Improved Node State Diagnostics
+
+  Accounting
+
+
