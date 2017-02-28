@@ -4947,6 +4947,12 @@ int MNodeAdjustAvailResources(
       *ARes[rindex] = CRes[rindex];
       }
     }  /* END for (rindex) */
+  
+  /* Adjust GRES */
+  for (rindex = 0; rindex < MAX_MGRES; rindex++) 
+  {
+    N->ARes.GRes[rindex].count = MAX(0,(N->CRes.GRes[rindex].count - N->DRes.GRes[rindex].count));
+  }
 
   return(SUCCESS);
   }  /* END MNodeAdjustAvailResources() */
